@@ -1,0 +1,6 @@
+name = "forgithub_collections"
+main = "index.js"
+compatibility_date = "2025-02-01"
+assets.directory = "./"
+route.custom_domain = true
+route.pattern = "collections.forgithub.com"

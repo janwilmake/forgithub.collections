@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{LIST_NAME}} by {{OWNER}} - GitHub Collections</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-out forwards;
+            animation-delay: calc(var(--delay) * 0.1s);
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body class="bg-black min-h-screen p-6">
+    <div class="max-w-6xl mx-auto">
+        <nav class="flex justify-between items-center mb-12">
+            <a href="/"
+                class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+                Collections
+            </a>
+            <div class="flex items-center gap-4">
+                <a href="/{{OWNER}}" class="text-purple-400 hover:text-purple-300 transition-colors">
+                    Back to {{OWNER}}'s lists
+                </a>
+                <form onsubmit="goToOwnerPage(event)" class="flex">
+                    <input id="ownerInput" type="text" placeholder="GitHub username"
+                        class="px-3 py-2 rounded-l-lg bg-gray-800 text-white border-none focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    <button type="submit"
+                        class="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-r-lg text-white font-bold hover:from-purple-600 hover:to-pink-600 transition-all duration-300">
+                        Browse
+                    </button>
+                </form>
+            </div>
+        </nav>
+
+        <header class="mb-12 fade-in" style="--delay: 0">
+            <div class="flex items-center gap-2 text-gray-400 mb-2">
+                <a href="/{{OWNER}}" class="hover:text-purple-400 transition-colors">{{OWNER}}</a>
+                <span>/</span>
+                <h1 class="text-white font-bold">{{LIST_NAME}}</h1>
+            </div>
+            <p class="text-gray-300 text-lg">{{LIST_DESCRIPTION}}</p>
+        </header>
+
+        <div class="fade-in" style="--delay: 1">
+            <div class="grid grid-cols-1 gap-6">
+                {{REPOS}}
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-20 text-center text-gray-500 fade-in" style="--delay: 2">
+        <p>Not affiliated with GitHub. Powered by Collections for GitHub.</p>
+    </footer>
+
+    <script>
+        function goToOwnerPage(event) {
+            event.preventDefault();
+            const owner = document.getElementById('ownerInput').value.trim();
+            if (owner) {
+                window.location.href = `/${owner}`;
+            }
+        }
+    </script>
+</body>
+
+</html>
