@@ -26,20 +26,18 @@ Example `lists.yaml` file:
 lists:
   Serverless Deployment ☁️:
     description: some desc
-    isPrivate: true
     items:
       - janwilmake/evaloncloud
       - janwilmake/evalon.cloud
   GitHub Data ☁️:
     description: Tools to extract data from GitHub
-    isPrivate: true
     items:
       - janwilmake/uit
       - janwilmake/forgithub.size
-unlisted:
+repos-unlisted:
   - janwilmake/xyz
   - janwilmake/abc
-starred:
+starred-unlisted:
   - zplesiv/xygit
   - zplesiv/gitlip
 ```
