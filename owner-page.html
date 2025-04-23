@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{OWNER}}'s GitHub Lists</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body class="bg-black min-h-screen p-6">
+    <header class="max-w-6xl mx-auto mb-12">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+            <div>
+                <a href="/"
+                    class="inline-block text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 hover:from-purple-500 hover:to-pink-500 transition-colors">
+                    Lists for GitHub
+                </a>
+                <h1 class="text-2xl text-white mt-4">
+                    <span class="text-gray-400">Lists for</span>
+                    <a href="https://github.com/{{OWNER}}" target="_blank" rel="noopener noreferrer"
+                        class="hover:text-purple-400 transition-colors">
+                        {{OWNER}}
+                    </a>
+                </h1>
+            </div>
+
+            <form id="usernameForm" class="flex mt-6 md:mt-0">
+                <input type="text" id="username" placeholder="Search another user"
+                    class="px-4 py-2 bg-gray-800 border border-gray-700 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white w-48">
+                <button type="submit"
+                    class="px-4 py-2 font-medium text-white bg-gradient-to-r from-purple-500 to-pink-500 rounded-r-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300">
+                    Go
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto fade-in">
+        {{LISTS_DATA}}
+    </main>
+
+    <footer class="max-w-6xl mx-auto mt-16 p-6 text-center text-gray-500 text-sm">
+        <p>Lists for GitHub is powered by <a href="https://cache.forgithub.com" target="_blank"
+                rel="noopener noreferrer"
+                class="text-purple-400 hover:text-purple-300 transition-colors">cache.forgithub.com</a></p>
+    </footer>
+
+    <script>
+        document.getElementById('usernameForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            if (username) {
+                window.location.href = '/' + username;
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Collections for GitHub</title>
+    <title>Lists for GitHub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes float {
@@ -46,7 +46,7 @@
         <h1 class="float-animation">
             <span
                 class="text-9xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
-                Collections
+                Lists
             </span>
             <span class="block text-2xl font-medium text-gray-400 mt-4">
                 for GitHub
@@ -54,49 +54,47 @@
         </h1>
 
         <p class="text-xl text-gray-300 max-w-2xl mx-auto fade-in">
-            Browse, organize, and discover repositories with a beautiful interface for GitHub stars and lists
+            Browse and explore GitHub lists from any user or organization
         </p>
 
         <div class="space-y-6 fade-in">
-            <form onsubmit="goToOwnerPage(event)" class="max-w-md mx-auto">
-                <div class="flex">
-                    <input id="ownerInput" type="text" placeholder="Enter GitHub username"
-                        class="px-4 py-3 flex-grow rounded-l-lg bg-gray-800 text-white border-none focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    <button type="submit"
-                        class="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-r-lg text-white font-bold hover:from-purple-600 hover:to-pink-600 transition-all duration-300">
-                        Browse
-                    </button>
-                </div>
+            <form id="usernameForm" class="flex flex-col md:flex-row justify-center gap-4">
+                <input type="text" id="username" placeholder="GitHub username"
+                    class="px-4 py-3 text-lg bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white w-full md:w-64">
+                <button type="submit"
+                    class="px-8 py-3 text-lg font-bold text-white bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl">
+                    View Lists
+                </button>
             </form>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 fade-in">
             <div class="bg-gray-800 p-6 rounded-lg">
-                <div class="text-purple-400 text-4xl mb-4">⭐</div>
-                <h3 class="text-xl font-bold text-white mb-2">Discover Stars</h3>
-                <p class="text-gray-300">Browse through starred repositories of any GitHub user</p>
-            </div>
-            <div class="bg-gray-800 p-6 rounded-lg">
                 <div class="text-purple-400 text-4xl mb-4">📚</div>
-                <h3 class="text-xl font-bold text-white mb-2">Explore Lists</h3>
-                <p class="text-gray-300">Find curated collections of repositories organized by topic</p>
+                <h3 class="text-xl font-bold text-white mb-2">Browse Lists</h3>
+                <p class="text-gray-300">Explore curated lists of repositories organized by topic or purpose</p>
             </div>
             <div class="bg-gray-800 p-6 rounded-lg">
                 <div class="text-purple-400 text-4xl mb-4">🔍</div>
-                <h3 class="text-xl font-bold text-white mb-2">Effortless Browsing</h3>
-                <p class="text-gray-300">Navigate through repositories with a clean, modern interface</p>
+                <h3 class="text-xl font-bold text-white mb-2">Discover Repos</h3>
+                <p class="text-gray-300">Find interesting repositories through organized collections</p>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <div class="text-purple-400 text-4xl mb-4">⭐</div>
+                <h3 class="text-xl font-bold text-white mb-2">Star Collections</h3>
+                <p class="text-gray-300">See what projects people are organizing and collecting</p>
             </div>
         </div>
     </main>
 
     <script>
-        function goToOwnerPage(event) {
+        document.getElementById('usernameForm').addEventListener('submit', function (event) {
             event.preventDefault();
-            const owner = document.getElementById('ownerInput').value.trim();
-            if (owner) {
-                window.location.href = `/${owner}`;
+            const username = document.getElementById('username').value.trim();
+            if (username) {
+                window.location.href = '/' + username;
             }
-        }
+        });
     </script>
 </body>
 

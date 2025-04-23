@@ -1,295 +1,233 @@
-// Import HTML templates
-import homepageHtml from "./homepage.html";
-import ownerListsHtml from "./owner-lists.html";
-import listDetailHtml from "./list-detail.html";
-import errorHtml from "./error.html";
+/**
+ * Get type 'safety' in js projects in VSCode (and other IDEs with good typescript support).
+ * Why js > ts? Because it runs in browsers too and with things like `eval` (without bundling/compilation).
+ * Ensure @cloudflare/workers-types is accessible. *`npm i --save-dev @cloudflare/workers-types`*
+ */
+//@ts-check
+/// <reference types="@cloudflare/workers-types" />
 
-const API_BASE_URL = "https://cache.forgithub.com";
+import homepageHTML from "./homepage.html";
+import ownerPageHTML from "./owner-page.html";
+import listPageHTML from "./list-page.html";
 
 export default {
+  /**
+   * Cloudflare Worker handler function
+   * @param {Request} request - The incoming request
+   * @param {{ DORM: DurableObjectNamespace }} env - Environment variables and bindings
+   * @param {ExecutionContext} ctx - Execution context
+   * @returns {Promise<Response>} - The response to the request
+   */
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
 
-    try {
-      // Homepage route
-      if (path === "/" || path === "") {
-        return new Response(homepageHtml, {
+    // Handle routes
+    if (path === "/" || path === "") {
+      return new Response(homepageHTML, {
+        headers: { "Content-Type": "text/html" },
+      });
+    }
+
+    // Parse path segments
+    const segments = path.split("/").filter(Boolean);
+
+    if (segments.length === 1) {
+      const owner = segments[0];
+      // Fetch lists for owner from the cache API
+      try {
+        const listsData = await fetchOwnerLists(owner);
+        const renderedHTML = ownerPageHTML
+          .replaceAll("{{OWNER}}", owner)
+          .replace("{{LISTS_DATA}}", generateListsHTML(listsData, owner));
+
+        return new Response(renderedHTML, {
           headers: { "Content-Type": "text/html" },
         });
-      }
-
-      // Route patterns
-      const ownerPattern = /^\/([^\/]+)$/;
-      const listDetailPattern = /^\/([^\/]+)\/([^\/]+)$/;
-
-      // Owner lists route
-      const ownerMatch = path.match(ownerPattern);
-      if (ownerMatch) {
-        const owner = ownerMatch[1];
-        return await handleOwnerLists(owner);
-      }
-
-      // List detail route
-      const listDetailMatch = path.match(listDetailPattern);
-      if (listDetailMatch) {
-        const owner = listDetailMatch[1];
-        const listId = listDetailMatch[2];
-        return await handleListDetail(owner, listId);
-      }
-
-      // If no routes match, return a 404
-      return new Response(
-        errorHtml.replaceAll("{{ERROR_MESSAGE}}", "Page not found"),
-        {
-          status: 404,
-          headers: { "Content-Type": "text/html" },
-        },
-      );
-    } catch (error) {
-      console.error("Error handling request:", error);
-      return new Response(
-        errorHtml.replaceAll(
-          "{{ERROR_MESSAGE}}",
-          error.message || "An error occurred",
-        ),
-        {
+      } catch (error) {
+        return new Response(`Error fetching lists: ${error.message}`, {
           status: 500,
-          headers: { "Content-Type": "text/html" },
-        },
-      );
+        });
+      }
     }
+
+    if (segments.length === 2) {
+      const owner = segments[0];
+      const listSlug = segments[1];
+
+      try {
+        // Fetch list details from the cache API
+        const listsData = await fetchOwnerLists(owner);
+        const list = listsData.lists.find((list) => list.slug === listSlug);
+
+        if (!list) {
+          return new Response("List not found", { status: 404 });
+        }
+
+        const renderedHTML = listPageHTML
+          .replaceAll("{{OWNER}}", owner)
+          .replaceAll("{{LIST_NAME}}", list.name)
+          .replace("{{LIST_DESCRIPTION}}", list.description || "No description")
+          .replace("{{REPOS_DATA}}", generateReposHTML(list.repositories));
+
+        return new Response(renderedHTML, {
+          headers: { "Content-Type": "text/html" },
+        });
+      } catch (error) {
+        return new Response(`Error fetching list details: ${error.message}`, {
+          status: 500,
+        });
+      }
+    }
+
+    return new Response("Not found", { status: 404 });
   },
 };
 
 /**
- * Handle the owner lists page
+ * Fetch owner lists from the cache API
+ * @param {string} owner - GitHub owner username
+ * @returns {Promise<any>} - Lists data
  */
-async function handleOwnerLists(owner) {
-  try {
-    // Fetch starred repos data from the API
-    const response = await fetch(`${API_BASE_URL}/stars/${owner}`);
+async function fetchOwnerLists(owner) {
+  const response = await fetch(`https://cache.forgithub.com/stars/${owner}`);
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch lists for ${owner}: ${response.statusText}`,
-      );
-    }
-
-    const data = await response.json();
-
-    // Create HTML for each list
-    let listsHtml = "";
-
-    if (data.lists && data.lists.length > 0) {
-      data.lists.forEach((list) => {
-        const repoCount = list.totalRepositories;
-        listsHtml += `
-          <a href="/${owner}/${
-          list.slug
-        }" class="block bg-gray-800 p-6 rounded-lg hover:bg-gray-700 transition-all duration-300">
-            <h3 class="text-xl font-bold text-white mb-2">${escapeHtml(
-              list.name,
-            )}</h3>
-            <p class="text-gray-300 mb-4">${
-              list.description ? escapeHtml(list.description) : "No description"
-            }</p>
-            <div class="flex justify-between items-center">
-              <span class="text-purple-400">${repoCount} repositor${
-          repoCount === 1 ? "y" : "ies"
-        }</span>
-              <span class="text-gray-400 text-sm">Updated: ${formatDate(
-                list.updatedAt,
-              )}</span>
-            </div>
-          </a>
-        `;
-      });
-    } else {
-      listsHtml = `
-        <div class="bg-gray-800 p-6 rounded-lg">
-          <p class="text-gray-300">No lists found for ${escapeHtml(owner)}</p>
-        </div>
-      `;
-    }
-
-    // Also show a section with starred repos that aren't in any list
-    let starredReposHtml = "";
-
-    if (data.stars && data.stars.length > 0) {
-      // Only show top 10 starred repos
-      const topStars = data.stars.slice(0, 10);
-
-      topStars.forEach((repo) => {
-        starredReposHtml += `
-          <div class="bg-gray-800 p-4 rounded-lg">
-            <h4 class="text-white font-bold">${escapeHtml(repo.name)}</h4>
-            <p class="text-gray-300 text-sm truncate">${
-              repo.description ? escapeHtml(repo.description) : "No description"
-            }</p>
-            <div class="flex justify-between mt-2">
-              <span class="text-xs text-purple-400">⭐ ${
-                repo.stargazers_count
-              }</span>
-              <a href="${
-                repo.html_url
-              }" target="_blank" class="text-xs text-blue-400 hover:underline">View on GitHub</a>
-            </div>
-          </div>
-        `;
-      });
-    } else {
-      starredReposHtml = `
-        <div class="bg-gray-800 p-4 rounded-lg">
-          <p class="text-gray-300">No starred repositories found</p>
-        </div>
-      `;
-    }
-
-    // Replace placeholders in the HTML template
-    let html = ownerListsHtml
-      .replaceAll("{{OWNER}}", escapeHtml(owner))
-      .replaceAll("{{LISTS}}", listsHtml)
-      .replaceAll("{{STARRED_REPOS}}", starredReposHtml);
-
-    return new Response(html, {
-      headers: { "Content-Type": "text/html" },
-    });
-  } catch (error) {
-    console.error(`Error in handleOwnerLists:`, error);
-    return new Response(
-      errorHtml.replaceAll(
-        "{{ERROR_MESSAGE}}",
-        `Failed to load lists for ${owner}: ${error.message}`,
-      ),
-      {
-        status: 500,
-        headers: { "Content-Type": "text/html" },
-      },
-    );
+  if (!response.ok) {
+    throw new Error(`Failed to fetch data: ${response.status}`);
   }
+
+  return await response.json();
 }
 
 /**
- * Handle the list detail page
+ * Generate HTML for lists in a 3-column layout
+ * @param {Object} data - Lists data from the API
+ * @returns {string} - HTML for lists display
  */
-async function handleListDetail(owner, listId) {
-  try {
-    // Fetch starred repos data from the API
-    const response = await fetch(`${API_BASE_URL}/stars/${owner}`);
+function generateListsHTML(data, owner) {
+  if (!data.lists || data.lists.length === 0) {
+    return '<div class="text-center text-gray-400 my-10">No lists found for this user</div>';
+  }
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch data for ${owner}: ${response.statusText}`,
-      );
-    }
+  const chunkedLists = chunkArray(data.lists, 3);
 
-    const data = await response.json();
+  let html = '<div class="grid grid-cols-1 md:grid-cols-3 gap-6">';
 
-    // Find the requested list
-    const list = data.lists.find((l) => l.slug === listId);
+  for (let column = 0; column < 3; column++) {
+    html += '<div class="space-y-6">';
 
-    if (!list) {
-      return new Response(
-        errorHtml.replaceAll(
-          "{{ERROR_MESSAGE}}",
-          `List "${listId}" not found for ${owner}`,
-        ),
-        {
-          status: 404,
-          headers: { "Content-Type": "text/html" },
-        },
-      );
-    }
-
-    // Create HTML for repositories in the list
-    let reposHtml = "";
-
-    if (list.repositories && list.repositories.length > 0) {
-      list.repositories.forEach((repo) => {
-        reposHtml += `
-          <div class="bg-gray-800 p-6 rounded-lg hover:bg-gray-700 transition-all duration-300">
-            <div class="flex justify-between items-center mb-3">
-              <h3 class="text-xl font-bold text-white">${escapeHtml(
-                repo.name,
-              )}</h3>
-              <span class="text-purple-400">⭐ ${repo.stars}</span>
-            </div>
-            <p class="text-gray-300 mb-4">${
-              repo.description ? escapeHtml(repo.description) : "No description"
-            }</p>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">${escapeHtml(repo.owner)}</span>
-              <a href="${repo.url}" target="_blank" rel="noopener noreferrer" 
-                 class="text-blue-400 hover:underline flex items-center gap-1">
-                View on GitHub
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                  <polyline points="15 3 21 3 21 9"></polyline>
-                  <line x1="10" y1="14" x2="21" y2="3"></line>
-                </svg>
-              </a>
+    for (const list of chunkedLists[column] || []) {
+      html += `
+        <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+          <div class="p-6">
+            <a href="/${owner}/${list.slug}" class="block">
+              <h3 class="text-xl font-bold text-white mb-2 hover:text-purple-400 transition-colors">${list.name}</h3>
+              <p class="text-gray-300 mb-4">${list.description || "No description"}</p>
+              <div class="text-sm text-gray-400">
+                <span>${list.totalRepositories} repositories</span>
+                <span class="ml-4">Updated: ${new Date(list.updatedAt).toLocaleDateString()}</span>
+              </div>
+            </a>
+          </div>
+          <div class="bg-gray-700 p-4">
+            <div class="space-y-2 max-h-60 overflow-y-auto">
+              ${list.repositories
+                .map(
+                  (repo) => `
+                <a href="https://github.com/${repo.owner}/${repo.name}" target="_blank" rel="noopener noreferrer" 
+                  class="block p-2 hover:bg-gray-600 rounded flex items-center justify-between">
+                  <span class="text-white">${repo.owner}/${repo.name}</span>
+                  <span class="text-yellow-400 flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                    ${repo.stars}
+                  </span>
+                </a>
+              `,
+                )
+                .join("")}
             </div>
           </div>
-        `;
-      });
-    } else {
-      reposHtml = `
-        <div class="bg-gray-800 p-6 rounded-lg">
-          <p class="text-gray-300">No repositories found in this list</p>
         </div>
       `;
     }
 
-    // Replace placeholders in the HTML template
-    let html = listDetailHtml
-      .replaceAll("{{OWNER}}", escapeHtml(owner))
-      .replaceAll("{{LIST_NAME}}", escapeHtml(list.name))
-      .replaceAll(
-        "{{LIST_DESCRIPTION}}",
-        list.description ? escapeHtml(list.description) : "No description",
-      )
-      .replaceAll("{{REPOS}}", reposHtml);
-
-    return new Response(html, {
-      headers: { "Content-Type": "text/html" },
-    });
-  } catch (error) {
-    console.error(`Error in handleListDetail:`, error);
-    return new Response(
-      errorHtml.replaceAll(
-        "{{ERROR_MESSAGE}}",
-        `Failed to load list "${listId}" for ${owner}: ${error.message}`,
-      ),
-      {
-        status: 500,
-        headers: { "Content-Type": "text/html" },
-      },
-    );
+    html += "</div>";
   }
+
+  html += "</div>";
+  html += `
+    <div class="mt-8 text-center">
+      <a href="https://cache.forgithub.com/stars/${owner}" 
+        class="inline-block px-4 py-2 text-sm font-medium text-white bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors" 
+        target="_blank" rel="noopener noreferrer">
+        View JSON Data
+      </a>
+    </div>
+  `;
+
+  return html;
 }
 
 /**
- * Format a date string
+ * Generate HTML for repositories in a list
+ * @param {Array} repos - List of repositories
+ * @returns {string} - HTML for repositories display
  */
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
+function generateReposHTML(repos) {
+  if (!repos || repos.length === 0) {
+    return '<div class="text-center text-gray-400 my-10">No repositories in this list</div>';
+  }
+
+  let html =
+    '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">';
+
+  for (const repo of repos) {
+    html += `
+      <div class="bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-300">
+        <a href="${repo.url}" target="_blank" rel="noopener noreferrer" class="block">
+          <h3 class="text-lg font-bold text-white mb-2 hover:text-purple-400 transition-colors">${repo.owner}/${repo.name}</h3>
+          <p class="text-gray-300 mb-4 text-sm line-clamp-3">${repo.description || "No description"}</p>
+          <div class="flex items-center text-sm text-gray-400">
+            <span class="flex items-center">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+              ${repo.stars}
+            </span>
+            ${
+              repo.isPrivate
+                ? `<span class="ml-4 px-2 py-1 text-xs font-medium text-white bg-gray-600 rounded">Private</span>`
+                : ""
+            }
+          </div>
+        </a>
+      </div>
+    `;
+  }
+
+  html += "</div>";
+
+  return html;
+}
+
+/**
+ * Split array into chunks for column layout
+ * @param {Array} array - Array to split
+ * @param {number} columns - Number of columns
+ * @returns {Array} - Array of column arrays
+ */
+function chunkArray(array, columns) {
+  const result = Array(columns)
+    .fill()
+    .map(() => []);
+
+  // Distribute items across columns in a balanced way
+  array.forEach((item, index) => {
+    const columnIndex = index % columns;
+    result[columnIndex].push(item);
   });
-}
 
-/**
- * Escape HTML to prevent XSS
- */
-function escapeHtml(str) {
-  if (!str) return "";
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+  return result;
 }

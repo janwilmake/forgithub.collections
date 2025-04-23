@@ -1,6 +1,7 @@
-name = "forgithub_collections"
+name = "forgithub_lists"
 main = "index.js"
-compatibility_date = "2025-02-01"
+compatibility_date = "2025-04-21"
+dev.port = 3000
 assets.directory = "./"
 route.custom_domain = true
-route.pattern = "collections.forgithub.com"
+route.pattern = "lists.forgithub.com"

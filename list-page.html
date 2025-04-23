@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{LIST_NAME}} by {{OWNER}} - Lists for GitHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body class="bg-black min-h-screen p-6">
+    <header class="max-w-6xl mx-auto mb-12">
+        <div class="flex flex-col md:flex-row justify-between items-start">
+            <div>
+                <a href="/"
+                    class="inline-block text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 hover:from-purple-500 hover:to-pink-500 transition-colors">
+                    Lists for GitHub
+                </a>
+
+                <div class="flex items-center mt-4 text-gray-400">
+                    <a href="/{{OWNER}}" class="hover:text-purple-400 transition-colors">{{OWNER}}</a>
+                    <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <span class="text-white font-medium">{{LIST_NAME}}</span>
+                </div>
+
+                <p class="text-lg text-gray-300 mt-2 max-w-2xl">{{LIST_DESCRIPTION}}</p>
+            </div>
+
+            <a href="/{{OWNER}}"
+                class="mt-6 md:mt-0 px-4 py-2 font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-700 transition-all duration-300 inline-flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                        clip-rule="evenodd" />
+                </svg>
+                Back to lists
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto fade-in">
+        <h2 class="text-2xl font-bold text-white mb-8">Repositories</h2>
+        {{REPOS_DATA}}
+    </main>
+
+    <footer class="max-w-6xl mx-auto mt-16 p-6 text-center text-gray-500 text-sm">
+        <p>Lists for GitHub is powered by <a href="https://cache.forgithub.com" target="_blank"
+                rel="noopener noreferrer"
+                class="text-purple-400 hover:text-purple-300 transition-colors">cache.forgithub.com</a></p>
+        <p class="mt-2">
+            <a href="https://cache.forgithub.com/stars/{{OWNER}}" target="_blank" rel="noopener noreferrer"
+                class="text-purple-400 hover:text-purple-300 transition-colors">View JSON API Data</a>
+        </p>
+    </footer>
+</body>
+
+</html>
