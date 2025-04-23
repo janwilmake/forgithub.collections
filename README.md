@@ -20,7 +20,8 @@ Every page is in a separate html file, imported in the worker, and is ingesting 
 - `git clone https://lists.forgithub.com/janwilmake` would retrieve the state of your lists and other repos as a giant YAML file. Lists would be a "special repo" that is dynamically generated, with github lists as the source of truth.
 - When pushing to https://lists.forgithub.com/janwilmake and it contains the same yaml format, it should trigger updating the lists. You should be able to remove, rename, and create lists in this way.
 - Repo https://github.com/owner/[list-id] becomes a special repo whose files are added at the root of the clone, rather than in a folder of it, and whose files will be included as metadata into the lists endpoint. This way, you can have more extensive descriptions.
-- Maybe: If you put one or more special list-repos in a list, this can be leveraged to create a more hierarchical view (not in the yaml though). This allows creating a very nice tree-view at some point.
+- Maybe: If you put one or more special list-repos in a list, this can be leveraged to create a more hierarchical view (not in the yaml though). This allows creating a very nice tree-view at some point. Imagine https://observablehq.com/@d3/force-directed-tree but with my lists and better labeling! It can become goal-based!
+- Also add size info (tokencount of non-generated files) to the endpoint
 
 Example `lists.yaml` file:
 
