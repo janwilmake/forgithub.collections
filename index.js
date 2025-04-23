@@ -6,8 +6,11 @@
 //@ts-check
 /// <reference types="@cloudflare/workers-types" />
 
+//@ts-ignore
 import homepageHTML from "./homepage.html";
+//@ts-ignore
 import ownerPageHTML from "./owner-page.html";
+//@ts-ignore
 import listPageHTML from "./list-page.html";
 
 export default {
@@ -220,12 +223,13 @@ function generateReposHTML(repos) {
  */
 function chunkArray(array, columns) {
   const result = Array(columns)
-    .fill()
+    .fill(null)
     .map(() => []);
 
   // Distribute items across columns in a balanced way
   array.forEach((item, index) => {
     const columnIndex = index % columns;
+    //@ts-ignore
     result[columnIndex].push(item);
   });
 
