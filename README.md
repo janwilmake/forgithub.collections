@@ -19,6 +19,8 @@ Every page is in a separate html file, imported in the worker, and is ingesting 
 - `git clone https://lists.forgithub.com/stars/janwilmake/lists/[slug]` or `git clone https://lists.forgithub.com/janwilmake/[slug]` would retrieve a combined zip of all repos in the list, (without `.git` for now). This can be done using
 - `git clone https://lists.forgithub.com/janwilmake` would retrieve the state of your lists and other repos as a giant YAML file. Lists would be a "special repo" that is dynamically generated, with github lists as the source of truth.
 - When pushing to https://lists.forgithub.com/janwilmake and it contains the same yaml format, it should trigger updating the lists. You should be able to remove, rename, and create lists in this way.
+- Repo https://github.com/owner/[list-id] becomes a special repo whose files are added at the root of the clone, rather than in a folder of it, and whose files will be included as metadata into the lists endpoint. This way, you can have more extensive descriptions.
+- Maybe: If you put one or more special list-repos in a list, this can be leveraged to create a more hierarchical view (not in the yaml though). This allows creating a very nice tree-view at some point.
 
 Example `lists.yaml` file:
 
@@ -45,6 +47,8 @@ starred-unlisted:
 TODO:
 
 - generate the yaml file from https://cache.forgithub.com and serve it as file-object on `/{owner}[.json]`
-- proof `dynamic-files-to-git-poc`
+- proof `dynamic-files-to-git-poc` if possible and also see if push endpoint would work as well (see dm @zplesiv); if this works, use that, otherwise, create a read + write api using regular REST serving zip and taking a file, so it's easy to use via browsers and curl.
 - create `uithub.outputgit` that goes from a FormData stream (from URL) to this!
 - when user-agent matches `git/*` (any git client), stream the JSON object through `uithub.ingestjson` and `uithub.outputgit`.
+
+This whole thing is very much needed, as it would finally provide me the ultimate metaview of all my work so far, and related work! Perfect starting point for creating improved context for AI as well.
