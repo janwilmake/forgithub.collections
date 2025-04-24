@@ -2,6 +2,27 @@
 <html lang="en">
 
 <head>
+
+    <meta name="description" content="{{LIST_NAME}} - {{LIST_DESCRIPTION}}" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Facebook Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="{{LIST_NAME}} by {{OWNER}} - Lists for GitHub" />
+    <meta property="og:description" content="{{LIST_NAME}} - {{LIST_DESCRIPTION}}" />
+    <meta property="og:image" content="https://quickog.com/screenshot/lists.forgithub.com/{{OWNER}}/{{LIST_SLUG}}" />
+    <meta property="og:image:alt" content="{{LIST_NAME}} - {{LIST_DESCRIPTION}}" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta property="twitter:domain" content="lists.forgithub.com" />
+    <meta name="twitter:title" content="{{LIST_NAME}} by {{OWNER}} - Lists for GitHub" />
+    <meta name="twitter:description" content="{{LIST_NAME}} - {{LIST_DESCRIPTION}}" />
+    <meta name="twitter:image" content="https://quickog.com/screenshot/lists.forgithub.com/{{OWNER}}/{{LIST_SLUG}}" />
+
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{LIST_NAME}} by {{OWNER}} - Lists for GitHub</title>
@@ -44,7 +65,7 @@
                     <span class="text-white font-medium">{{LIST_NAME}}</span>
                 </div>
 
-                <p class="text-lg text-gray-300 mt-2 max-w-2xl">{{LIST_DESCRIPTION}}</p>
+                <p class="text-lg text-gray-300 mt-2 max-w-2xl">{{LIST_NAME}} - {{LIST_DESCRIPTION}}</p>
             </div>
 
             <a href="/{{OWNER}}"

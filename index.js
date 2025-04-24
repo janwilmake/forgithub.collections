@@ -70,7 +70,11 @@ export default {
         const renderedHTML = listPageHTML
           .replaceAll("{{OWNER}}", owner)
           .replaceAll("{{LIST_NAME}}", list.name)
-          .replace("{{LIST_DESCRIPTION}}", list.description || "No description")
+          .replaceAll("{{LIST_SLUG}}", list.slug)
+          .replaceAll(
+            "{{LIST_DESCRIPTION}}",
+            list.description || "No description",
+          )
           .replace("{{REPOS_DATA}}", generateReposHTML(list.repositories));
 
         return new Response(renderedHTML, {
