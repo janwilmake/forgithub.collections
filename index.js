@@ -124,16 +124,22 @@ function generateListsHTML(data, owner) {
         <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
           <div class="p-6">
             <a href="/${owner}/${list.slug}" class="block">
-              <h3 class="text-xl font-bold text-white mb-2 hover:text-purple-400 transition-colors">${list.name}</h3>
-              <p class="text-gray-300 mb-4">${list.description || "No description"}</p>
+              <h3 class="text-xl font-bold text-white mb-2 hover:text-purple-400 transition-colors">${
+                list.name
+              }</h3>
+              <p class="text-gray-300 mb-4">${
+                list.description || "No description"
+              }</p>
               <div class="text-sm text-gray-400">
                 <span>${list.totalRepositories} repositories</span>
-                <span class="ml-4">Updated: ${new Date(list.updatedAt).toLocaleDateString()}</span>
+                <span class="ml-4">Updated: ${new Date(
+                  list.updatedAt,
+                ).toLocaleDateString()}</span>
               </div>
             </a>
           </div>
           <div class="bg-gray-700 p-4">
-            <div class="space-y-2 max-h-60 overflow-y-auto">
+            <div class="space-y-2">
               ${list.repositories
                 .map(
                   (repo) => `
@@ -189,9 +195,15 @@ function generateReposHTML(repos) {
   for (const repo of repos) {
     html += `
       <div class="bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-300">
-        <a href="${repo.url}" target="_blank" rel="noopener noreferrer" class="block">
-          <h3 class="text-lg font-bold text-white mb-2 hover:text-purple-400 transition-colors">${repo.owner}/${repo.name}</h3>
-          <p class="text-gray-300 mb-4 text-sm line-clamp-3">${repo.description || "No description"}</p>
+        <a href="${
+          repo.url
+        }" target="_blank" rel="noopener noreferrer" class="block">
+          <h3 class="text-lg font-bold text-white mb-2 hover:text-purple-400 transition-colors">${
+            repo.owner
+          }/${repo.name}</h3>
+          <p class="text-gray-300 mb-4 text-sm line-clamp-3">${
+            repo.description || "No description"
+          }</p>
           <div class="flex items-center text-sm text-gray-400">
             <span class="flex items-center">
               <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
