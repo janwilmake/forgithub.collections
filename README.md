@@ -1,6 +1,10 @@
 # Lists for GitHub
 
-Lists are great to collect repos meaningfully together and allows us to create smaller, more AI-friendly repos without losing track of things. I wanted to use GitHub lists more but found it hard to keep track of which repos were listed and which weren't. Another thing was that it wasn't possibel to view all lists in a single overview. The datashape of GitHub lists is great, but there are opportunities in how we can interface with it. This is why I made 'Lists for GitHub': to create an easier interface for finding and manipulating GitHub lists, for AIs and for humans.
+[![janwilmake/forgithub.lists context](https://badge.forgithub.com/janwilmake/forgithub.lists)](https://uithub.com/janwilmake/forgithub.lists) [![](https://badge.xymake.com/janwilmake/status/1915338073061167487)](https://xymake.com/janwilmake/status/1915338073061167487)
+
+
+
+GitHub Lists, a relatively new feature, are great to collect repos meaningfully together and allows us to create smaller, more AI-friendly repos without losing track of things. I wanted to use GitHub lists more but found it hard to keep track of which repos were listed and which weren't. Another thing was that it wasn't possibel to view all lists in a single overview. The datashape of GitHub lists is great, but there are opportunities in how we can interface with it. This is why I made 'Lists for GitHub': to create an easier interface for finding and manipulating GitHub lists, for AIs and for humans.
 
 ## Specification
 
