@@ -1,7 +1,10 @@
 name = "forgithub_lists"
 main = "main.ts"
 compatibility_date = "2024-05-02"
+assets.directory = "./public"
+routes = [{ pattern = "lists.forgithub.com", custom_domain = true }]
 
+dev.port = 3000
 # Environment variables
 [vars]
 GITHUB_REDIRECT_URI = "https://dashboard.forgithub.com/callback"
@@ -9,13 +12,12 @@ LOGIN_REDIRECT_URI = "https://lists.forgithub.com"
 ADMIN_OWNER_LOGIN = "janwilmake"
 COOKIE_DOMAIN_SHARING = "true"
 
-routes = [{ pattern = "lists.forgithub.com", custom_domain = true }]
 
 # Durable Objects bindings required by Sponsorflare
 [[durable_objects.bindings]]
 name = "SPONSOR_DO"
 class_name = "SponsorDO"
-script_name = "sponsorflare"
+script_name = "sponsorflare2"
 
 [[durable_objects.bindings]]
 name = "RATELIMIT_DO"

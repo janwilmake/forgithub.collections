@@ -1,47 +1,106 @@
-# Merge lists into zip
+# GitHub Lists CLI
 
-- POST https://merge.uithub.com takes string[] of urls returning formdata and returns FormData.
-- `curl https://lists.forgithub.com/janwilmake/[slug][/page].zip` would download a zip of all repos in the list. It uses merge.uithub.com and then outputzip.uithub.com
+A simple command-line interface for managing your GitHub Lists using curl.
 
-# Lists metaview YAML
+## Overview
 
-- `curl https://lists.forgithub.com/janwilmake` would retrieve the state of your lists and other repos as a giant YAML file. Lists would be a "special repo" that is dynamically generated, with github lists as the source of truth.
-- `curl -X POST https://lists.forgithub.com/janwilmake -d 'YAMLSTRING'` it should trigger updating the lists. You should be able to remove, rename, and create lists in this way.
-- To start, instead of git I can just use curl with this from vscode
+GitHub Lists is a feature that allows you to create collections of repositories. This CLI tool provides a simple way to manage your lists directly from the command line using curl.
 
-This whole thing is very much needed, as it would finally provide me the ultimate metaview of all my work so far, and related work! Perfect starting point for creating improved context for AI as well.
+You can:
 
-# Wishlist:
+- Get a YAML representation of all your lists
+- Modify that YAML locally
+- Update your GitHub Lists by sending the modified YAML back
 
-- if `/gitonly` is provided, the zip contains "repo-1/.git", "repo-2/.git". All of these internal repos don't contain any data but just configuration for downloading repositories, so that the zip is very small. Getting more code from each repo would require "git fetch" in each repo
-- if `/shallow` is provided they contain a shallow clone of the repo.
-- Repo https://github.com/owner/[list-id] becomes a special repo whose files are added at the root of the clone, rather than in a folder of it, and whose files will be included as metadata into the lists endpoint. This way, you can have more extensive descriptions.
-- Maybe: If you put one or more special list-repos in a list, this can be leveraged to create a more hierarchical view (not in the yaml though). This allows creating a very nice tree-view at some point. Imagine https://observablehq.com/@d3/force-directed-tree but with my lists and better labeling! It can become goal-based!
-- Also add size info (tokencount of non-generated files) to the endpoint.
-- proof `dynamic-files-to-git-poc` if possible and also see if push endpoint would work as well (see dm @zplesiv); if this works, use that, otherwise, create a read + write api using regular REST serving zip and taking a file, so it's easy to use via browsers and curl.
-- create `uithub.outputgit` that goes from a FormData stream (from URL) to this!
-- when user-agent matches `git/*` (any git client), stream the JSON object through `uithub.ingestjson` and `uithub.outputgit`.
-- support for 'awesome xyz' repos as list sources, looking for repo urls in the repo README under the same `/owner/repo`.
-- suport for downloading merging all `package.json` dependencies by looking for packages, then getting these from npm after resolving.
+## Prerequisites
 
-Example `lists.yaml` file:
+- [curl](https://curl.se/) installed on your system
+- A GitHub Personal Access Token (PAT) with `repo` scope
+- You must be a sponsor of the service owner (costs 1 cent per request)
+
+## Usage
+
+### 1. Authenticate with the service
+
+```bash
+curl -X POST "https://lists.forgithub.com/login?token=YOUR_GITHUB_PAT" \
+  -c cookie_jar.txt
+```
+
+Replace `YOUR_GITHUB_PAT` with your GitHub Personal Access Token. This command will:
+
+- Authenticate you with the service
+- Save your session cookies to a file named `cookie_jar.txt` for subsequent requests
+
+### 2. Get your current GitHub Lists
+
+```bash
+curl -X GET "https://lists.forgithub.com/YOUR_GITHUB_USERNAME" \
+  -b cookie_jar.txt \
+  -o lists.yaml
+```
+
+Replace `YOUR_GITHUB_USERNAME` with your GitHub username. This command will:
+
+- Fetch your current GitHub Lists state
+- Save it to a local file named `lists.yaml`
+
+The YAML file will contain:
+
+- All your GitHub Lists
+- Your repositories that aren't in any list
+- Your starred repositories that aren't in any list
+
+### 3. Update your GitHub Lists
+
+After modifying the YAML file, you can update your GitHub Lists:
+
+```bash
+curl -X POST "https://lists.forgithub.com/YOUR_GITHUB_USERNAME" \
+  -b cookie_jar.txt \
+  -H "Content-Type: text/yaml" \
+  --data-binary @lists.yaml
+```
+
+Replace `YOUR_GITHUB_USERNAME` with your GitHub username. This command will:
+
+- Send your modified YAML back to the server
+- Update your GitHub Lists accordingly
+
+## Example YAML Format
 
 ```yaml
 lists:
-  Serverless Deployment ☁️:
-    description: some desc
+  "Serverless Deployment ☁️":
+    description: "Tools for serverless deployment"
     items:
-      - janwilmake/evaloncloud
-      - janwilmake/evalon.cloud
-  GitHub Data ☁️:
-    description: Tools to extract data from GitHub
+      - owner/repo1
+      - owner/repo2
+  "GitHub Data ☁️":
+    description: "Tools to extract data from GitHub"
+    isPrivate: true
     items:
-      - janwilmake/uit
-      - janwilmake/forgithub.size
+      - owner/repo3
+      - owner/repo4
 repos-unlisted:
-  - janwilmake/xyz
-  - janwilmake/abc
+  - owner/unlistedrepo1
+  - owner/unlistedrepo2
 starred-unlisted:
-  - zplesiv/xygit
-  - zplesiv/gitlip
+  - otherowner/starredrepo1
+  - otherowner/starredrepo2
 ```
+
+## Notes
+
+- The service charges 1 cent per request, so you must be a sponsor of the service owner.
+- To create a private list, add `isPrivate: true` to the list configuration.
+- The YAML format is the source of truth - any changes you make to the YAML will be reflected in your GitHub Lists.
+- The update operation is asynchronous and returns immediately with a 202 status code.
+
+## Error Handling
+
+If you encounter errors:
+
+- Ensure your GitHub PAT has the correct permissions
+- Check that you're a sponsor of the service owner
+- Verify that your YAML is correctly formatted

@@ -76,6 +76,7 @@ export async function fetchAllMyRepos(
     `https://api.github.com/user/repos?page=${page}&per_page=100&sort=updated`,
     {
       headers: {
+        "User-Agent": "Cloudflare-Worker",
         Authorization: `token ${token}`,
       },
     },
@@ -104,7 +105,10 @@ export async function fetchAllMyStarredRepos(
   const response = await fetch(
     `https://api.github.com/user/starred?page=${page}&per_page=100&sort=updated`,
     {
-      headers: { Authorization: `token ${token}` },
+      headers: {
+        "User-Agent": "Cloudflare-Worker",
+        Authorization: `token ${token}`,
+      },
     },
   );
 
@@ -181,6 +185,7 @@ export async function fetchGitHubLists(
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
+        "User-Agent": "Cloudflare-Worker",
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
@@ -291,6 +296,7 @@ export async function createGitHubList(
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
+        "User-Agent": "Cloudflare-Worker",
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
@@ -377,6 +383,7 @@ export async function updateGitHubList(
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
+        "User-Agent": "Cloudflare-Worker",
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
@@ -442,6 +449,8 @@ export async function deleteGitHubList(
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
+        "User-Agent": "Cloudflare-Worker",
+
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
@@ -505,6 +514,8 @@ export async function getRepositoryNodeId(
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
+        "User-Agent": "Cloudflare-Worker",
+
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
@@ -595,6 +606,8 @@ export async function addRepoToGitHubLists(
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
+        "User-Agent": "Cloudflare-Worker",
+
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
@@ -683,6 +696,8 @@ export async function removeRepoFromGitHubLists(
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
+        "User-Agent": "Cloudflare-Worker",
+
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },

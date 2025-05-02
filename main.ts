@@ -14,8 +14,9 @@ export interface Env extends SponsorflareEnv {
 
 export default {
   fetch: async (request: Request, env: Env, ctx: any) => {
+    console.log("ENTERING FN");
     // Handle Sponsorflare middleware endpoints (/login, /callback, /github-webhook)
-    const sponsorflare = middleware(request, env);
+    const sponsorflare = await middleware(request, env);
     if (sponsorflare) return sponsorflare;
 
     const url = new URL(request.url);
@@ -26,9 +27,14 @@ export default {
         charge: 1, // Charge 1 cent per request
       });
 
+    console.log({ url, charged, access_token });
+
     // If not authenticated, redirect to login
     if (!is_authenticated || !access_token) {
-      return Response.redirect(`${url.origin}/login?scope=repo`, 302);
+      return new Response("Redirecting", {
+        status: 302,
+        headers: { Location: `${url.origin}/login?scope=repo` },
+      });
     }
 
     const pathParts = url.pathname.split("/").filter(Boolean);
@@ -66,9 +72,10 @@ export default {
         );
         const yamlContent = stringifyYaml(listsState);
 
-        return new Response(yamlContent, {
-          headers: { "Content-Type": "text/yaml" },
-        });
+        return new Response(
+          `# yaml-language-server: $schema=https://lists.forgithub.com/lists.schema.json\n${yamlContent}`,
+          { headers: { "Content-Type": "text/yaml;charset=utf8" } },
+        );
       } catch (error) {
         console.error(`Error fetching lists for ${username}:`, error);
         return new Response(`Error fetching GitHub lists: ${error}`, {
