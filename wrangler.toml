@@ -1,7 +1,27 @@
 name = "forgithub_lists"
-main = "index.js"
-compatibility_date = "2025-04-21"
-dev.port = 3000
-assets.directory = "./"
-route.custom_domain = true
-route.pattern = "lists.forgithub.com"
+main = "main.ts"
+compatibility_date = "2024-05-02"
+
+# Environment variables
+[vars]
+GITHUB_REDIRECT_URI = "https://dashboard.forgithub.com/callback"
+LOGIN_REDIRECT_URI = "https://lists.forgithub.com"
+ADMIN_OWNER_LOGIN = "janwilmake"
+COOKIE_DOMAIN_SHARING = "true"
+
+routes = [{ pattern = "lists.forgithub.com", custom_domain = true }]
+
+# Durable Objects bindings required by Sponsorflare
+[[durable_objects.bindings]]
+name = "SPONSOR_DO"
+class_name = "SponsorDO"
+script_name = "sponsorflare"
+
+[[durable_objects.bindings]]
+name = "RATELIMIT_DO"
+class_name = "RatelimitDO"
+
+# Migration for Durable Objects
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["SponsorDO", "RatelimitDO"]
